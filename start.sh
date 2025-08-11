@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Adjust as needed for your server
-export OUTPUT_DIR=${OUTPUT_DIR:-/data/cfe_tariffs}
+export OUTPUT_DIR=${OUTPUT_DIR:-"$HOME/tariff-scraper/data"}
 export DB_URL=${DB_URL:-"sqlite:///$OUTPUT_DIR/cfe.db"}
 
 mkdir -p "$OUTPUT_DIR"
