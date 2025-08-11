@@ -12,4 +12,4 @@ mkdir -p "$OUTPUT_DIR"
 # export GOOGLE_APPLICATION_CREDENTIALS=...
 
 # Run the API
-exec uvicorn app:app --host 0.0.0.0 --port 8000 --workers 1
+exec uvicorn app:app --host 0.0.0.0 --port 8080 --workers 1
