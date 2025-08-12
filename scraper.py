@@ -20,9 +20,9 @@ class CFETariffScraperSimplified:
         # Define all fare types and their URLs
         self.fare_urls = {
             "GDMTO": "https://app.cfe.mx/Aplicaciones/CCFE/Tarifas/TarifasCREIndustria/Tarifas/GranDemandaMTO.aspx",
-            "GDMTH": "https://app.cfe.mx/Aplicaciones/CCFE/Tarifas/TarifasCREIndustria/Tarifas/GranDemandaMTH.aspx", 
-            "DIST": "https://app.cfe.mx/Aplicaciones/CCFE/Tarifas/TarifasCREIndustria/Tarifas/DemandaIndustrialSub.aspx",
-            "DIT": "https://app.cfe.mx/Aplicaciones/CCFE/Tarifas/TarifasCREIndustria/Tarifas/DemandaIndustrialTran.aspx"
+            # "GDMTH": "https://app.cfe.mx/Aplicaciones/CCFE/Tarifas/TarifasCREIndustria/Tarifas/GranDemandaMTH.aspx", 
+            # "DIST": "https://app.cfe.mx/Aplicaciones/CCFE/Tarifas/TarifasCREIndustria/Tarifas/DemandaIndustrialSub.aspx",
+            # "DIT": "https://app.cfe.mx/Aplicaciones/CCFE/Tarifas/TarifasCREIndustria/Tarifas/DemandaIndustrialTran.aspx"
         }
         
         self.output_dir = output_dir
@@ -292,21 +292,24 @@ class CFETariffScraperSimplified:
     def append_and_save_data(self, new_data, fare_type, region_name, municipality_name, division_name, year, month):
         """Append new data to existing collections and save both consolidated and individual files"""
         if not new_data:
+            logger.warning(f"No data to save for {fare_type}/{region_name}/{municipality_name}/{division_name} - {year}-{month:02d}")
             return
         
-        # Save individual files first
+        # Save individual files first (always save locally)
         self.save_individual_files(new_data, fare_type, region_name, municipality_name, division_name, year, month)
         
         # Append to consolidated data
         self.original_data.extend(new_data)
         self.save_json_data(self.original_data, self.original_data_file)
+        logger.info(f"Saved consolidated Spanish data: {len(self.original_data)} total records")
         
         # Translate and append to consolidated translated data
         translated_new_data = [self.translate_data_record(record) for record in new_data]
         self.translated_data.extend(translated_new_data)
         self.save_json_data(self.translated_data, self.translated_data_file)
+        logger.info(f"Saved consolidated English data: {len(self.translated_data)} total records")
         
-        logger.info(f"Appended {len(new_data)} new records. Total records: {len(self.original_data)}")
+        logger.info(f"Appended {len(new_data)} new records for {year}-{month:02d}. Total records: {len(self.original_data)}")
     
     def scrape_all_data(self):
         """Main scraping function for all fare types"""
@@ -315,11 +318,11 @@ class CFETariffScraperSimplified:
             periods = []
             
             # 2024: September to December
-            for month in range(9, 13):
+            for month in range(8, 13):
                 periods.append({"year": "2024", "month": month})
             
             # 2025: All available months
-            for month in range(1, 13):
+            for month in range(0, 13):
                 periods.append({"year": "2025", "month": month})
             
             # Iterate through all fare types
@@ -447,7 +450,10 @@ class CFETariffScraperSimplified:
 
 def main():
     """Run the scraper"""
-    output_directory = r"C:\Users\Jash\Downloads\clem_trans_plant_details"
+    # Use a local directory that persists
+    output_directory = os.path.join(os.getcwd(), "cfe_data")
+    logger.info(f"Using output directory: {output_directory}")
+    
     scraper = CFETariffScraperSimplified(output_directory, headless=False)
     scraper.scrape_all_data()
 

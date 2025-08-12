@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  cfe-scraper:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./cfe_data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - OUTPUT_DIR=/app/data
+      - PYTHONPATH=/app
+    restart: unless-stopped
+
